@@ -1,0 +1,38 @@
+"entrezgene_id" "description" "chromosome_name" "start_position" "end_position"
+"1" 10155 "tripartite motif containing 28 [Source:HGNC Symbol;Acc:HGNC:16384]" "19" 58544064 58550722
+"2" 10399 "receptor for activated C kinase 1 [Source:HGNC Symbol;Acc:HGNC:4399]" "5" 181236897 181248096
+"3" 10891 "PPARG coactivator 1 alpha [Source:HGNC Symbol;Acc:HGNC:9237]" "4" 23755041 23904089
+"4" 11315 "Parkinsonism associated deglycase [Source:HGNC Symbol;Acc:HGNC:16369]" "1" 7954291 7985505
+"5" 126961 "histone cluster 2 H3 family member c [Source:HGNC Symbol;Acc:HGNC:20503]" "1" 149839538 149841193
+"6" 1499 "catenin beta 1 [Source:HGNC Symbol;Acc:HGNC:2514]" "3" 41194741 41260096
+"7" 22976 "PAX interacting protein 1 [Source:HGNC Symbol;Acc:HGNC:8624]" "7" 154943687 155003124
+"8" 23411 "sirtuin 1 [Source:HGNC Symbol;Acc:HGNC:14929]" "10" 67884656 67918390
+"9" 2648 "lysine acetyltransferase 2A [Source:HGNC Symbol;Acc:HGNC:4201]" "17" 42113111 42121367
+"10" 4088 "SMAD family member 3 [Source:HGNC Symbol;Acc:HGNC:6769]" "15" 67063763 67195169
+"11" 4208 "myocyte enhancer factor 2C [Source:HGNC Symbol;Acc:HGNC:6996]" "5" 88717117 88904257
+"12" 5071 "parkin RBR E3 ubiquitin protein ligase [Source:HGNC Symbol;Acc:HGNC:8607]" "6" 161347417 162727771
+"13" 51548 "sirtuin 6 [Source:HGNC Symbol;Acc:HGNC:14934]" "19" 4174109 4182566
+"14" 55011 "PIH1 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:26075]" "19" 49446298 49453497
+"15" 581 "BCL2 associated X, apoptosis regulator [Source:HGNC Symbol;Acc:HGNC:959]" "19" 48954815 48961798
+"16" 5906 "RAP1A, member of RAS oncogene family [Source:HGNC Symbol;Acc:HGNC:9855]" "1" 111542218 111716691
+"17" 6233 "ribosomal protein S27a [Source:HGNC Symbol;Acc:HGNC:10417]" "2" 55231903 55235853
+"18" 672 "BRCA1 DNA repair associated [Source:HGNC Symbol;Acc:HGNC:1100]" "17" 43044295 43170245
+"19" 7124 "tumor necrosis factor [Source:HGNC Symbol;Acc:HGNC:11892]" "6" 31575565 31578336
+"20" 7124 "tumor necrosis factor [Source:HGNC Symbol;Acc:HGNC:11892]" "CHR_HSCHR6_MHC_MANN_CTG1" 31615015 31617784
+"21" 7124 "tumor necrosis factor [Source:HGNC Symbol;Acc:HGNC:11892]" "CHR_HSCHR6_MHC_MCF_CTG1" 31651872 31654641
+"22" 7124 "tumor necrosis factor [Source:HGNC Symbol;Acc:HGNC:11892]" "CHR_HSCHR6_MHC_COX_CTG1" 31562973 31565742
+"23" 7124 "tumor necrosis factor [Source:HGNC Symbol;Acc:HGNC:11892]" "CHR_HSCHR6_MHC_QBL_CTG1" 31565793 31568564
+"24" 7124 "tumor necrosis factor [Source:HGNC Symbol;Acc:HGNC:11892]" "CHR_HSCHR6_MHC_SSTO_CTG1" 31566312 31569081
+"25" 7124 "tumor necrosis factor [Source:HGNC Symbol;Acc:HGNC:11892]" "CHR_HSCHR6_MHC_APD_CTG1" 31643520 31645322
+"26" 7124 "tumor necrosis factor [Source:HGNC Symbol;Acc:HGNC:11892]" "CHR_HSCHR6_MHC_DBB_CTG1" 31557707 31560476
+"27" 7157 "tumor protein p53 [Source:HGNC Symbol;Acc:HGNC:11998]" "17" 7661779 7687550
+"28" 7314 "ubiquitin B [Source:HGNC Symbol;Acc:HGNC:12463]" "17" 16380798 16382745
+"29" 8294 "histone cluster 1 H4 family member i [Source:HGNC Symbol;Acc:HGNC:4793]" "6" 27138588 27139881
+"30" 8353 "histone cluster 1 H3 family member e [Source:HGNC Symbol;Acc:HGNC:4769]" "6" 26224199 26227473
+"31" 8354 "histone cluster 1 H3 family member i [Source:HGNC Symbol;Acc:HGNC:4771]" "6" 27871905 27872315
+"32" 8356 "histone cluster 1 H3 family member j [Source:HGNC Symbol;Acc:HGNC:4774]" "6" 27890382 27893106
+"33" 8361 "histone cluster 1 H4 family member f [Source:HGNC Symbol;Acc:HGNC:4783]" "6" 26240426 26240737
+"34" 8364 "histone cluster 1 H4 family member c [Source:HGNC Symbol;Acc:HGNC:4787]" "6" 26103876 26104310
+"35" 8365 "histone cluster 1 H4 family member h [Source:HGNC Symbol;Acc:HGNC:4788]" "6" 26277609 26285638
+"36" 8367 "histone cluster 1 H4 family member e [Source:HGNC Symbol;Acc:HGNC:4790]" "6" 26204552 26206038
+"37" 8370 "histone cluster 2 H4 family member a [Source:HGNC Symbol;Acc:HGNC:4794]" "1" 149832659 149839767
