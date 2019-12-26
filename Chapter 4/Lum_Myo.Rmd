@@ -1,0 +1,1469 @@
+---
+title: "Lum_Myo"
+author: '.'
+date: "9/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load("~/Desktop/RESEARCH_J/Lum_Myo_Merge.Robj")
+#load("~/justin/Lum_Myo_Merge.Robj")
+counts = Lum_Myo_Merge@assays$RNA@counts
+Sample = Lum_Myo_Merge@meta.data$Sample
+race = Lum_Myo_Merge@meta.data$Race
+
+countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+
+countsLum = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Lum"]
+sampleLum = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Lum"]
+raceLum = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Lum"]
+
+#Small case
+countsSmall = countsMyo[,sampleMyo %in% c("KCR8483","KCR8523","KCR8565","KCR8617")]
+sampleSmall = sampleMyo[sampleMyo %in% c("KCR8483","KCR8523","KCR8565","KCR8617")]
+raceSmall = raceMyo[sampleMyo %in% c("KCR8483","KCR8523","KCR8565","KCR8617")]
+
+Z = matrix(0,length(sampleSmall),length(table(sampleSmall)))
+colnames(Z) = names(table(sampleSmall))
+rownames(Z) = countsSmall@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleSmall)] = 1
+
+RawCountDataSet = countsSmall[countsSmall@Dimnames[[1]] %in% c("ACIN1","ACTB","ACTG1","ACTN1"),]
+Phenotypes = (raceSmall=="AA")
+Covariates = NULL
+RelatednessMatrix = Z
+
+RelatednessMatrixFull = Z %*% t(Z)
+
+LibSize <- apply(countsSmall, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+```
+
+```{r}
+#Small case
+countsSmall = countsMyo[,sampleMyo %in% c("KCR7518","KCR8084","KCR8451","KCR8580")]
+sampleSmall = sampleMyo[sampleMyo %in% c("KCR7518","KCR8084","KCR8451","KCR8580")]
+raceSmall = raceMyo[sampleMyo %in% c("KCR7518","KCR8084","KCR8451","KCR8580")]
+
+Z = matrix(0,length(sampleSmall),length(table(sampleSmall)))
+colnames(Z) = names(table(sampleSmall))
+rownames(Z) = countsSmall@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleSmall)] = 1
+
+RawCountDataSet = countsSmall[countsSmall@Dimnames[[1]] %in% c("ACIN1","ACTB","ACTG1","ACTN1"),]
+Phenotypes = (raceSmall=="AA")
+Covariates = NULL
+RelatednessMatrix = Z
+
+RelatednessMatrixFull = Z %*% t(Z)
+
+LibSize <- apply(countsSmall, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+```
+
+```{r}
+t = proc.time()
+outLow = pqlseq(RawCountDataSet[1:2,], Phenotypes, Covariates, RelatednessMatrix = RelatednessMatrix, LibSize = LibSize, lowrank = TRUE)
+proc.time()-t
+
+t = proc.time()
+outFull = pqlseq(RawCountDataSet[1:2,], Phenotypes, Covariates, RelatednessMatrix = RelatednessMatrixFull, LibSize = LibSize, lowrank = FALSE)
+proc.time()-t
+
+```
+
+```{r}
+load("~/justin/Lum_Myo_Merge.Robj")
+counts = Lum_Myo_Merge@assays$RNA@counts
+Sample = Lum_Myo_Merge@meta.data$Sample
+race = Lum_Myo_Merge@meta.data$Race
+
+countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+
+Z = matrix(0,length(sampleMyo),length(table(sampleMyo)))
+colnames(Z) = names(table(sampleMyo))
+rownames(Z) = countsMyo@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleMyo)] = 1
+LibSize <- apply(countsMyo, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+
+countsMyolit = countsMyo[1:2,]
+
+t = proc.time()
+outLow = pqlseq(countsMyolit, (raceMyo=="AA"), NULL, RelatednessMatrix = Z, LibSize = LibSize, lowrank = TRUE,numCore=2)
+proc.time()-t
+
+```
+
+```{r}
+load("~/justin/Lum_Myo_Merge.Robj")
+counts = Lum_Myo_Merge@assays$RNA@counts
+Sample = Lum_Myo_Merge@meta.data$Sample
+race = Lum_Myo_Merge@meta.data$Race
+
+countsLum = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Lum"]
+sampleLum = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Lum"]
+raceLum = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Lum"]
+
+
+Z = matrix(0,length(sampleLum),length(table(sampleLum)))
+colnames(Z) = names(table(sampleLum))
+rownames(Z) = countsLum@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleLum)] = 1
+LibSize <- apply(countsLum, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+
+t = proc.time()
+outLowLum = pqlseq(countsLum, (raceLum=="AA"), NULL, RelatednessMatrix = Z, LibSize = LibSize, lowrank = TRUE,numCore=4)
+proc.time()-t
+
+```
+
+Some descriptives
+```{r}
+SampleXRace = table(sampleMyo, raceMyo)
+gene = "MIF"
+aggRace = aggregate(countsMyo[gene,], FUN = mean, by = list(raceMyo))
+
+aggSample = aggregate(countsMyo[gene,], FUN = mean, by = list(sampleMyo))
+AASamples = rownames(SampleXRace)[SampleXRace[,1]>0]
+mean(aggSample$x[aggSample$Group.1 %in% AASamples])
+mean(aggSample$x[!(aggSample$Group.1 %in% AASamples)])
+
+```
+Pseudobulk
+```{r}
+countsAgg = apply(counts, 1, function(x){aggregate(x, FUN = sum, by = list(Sample))})
+countsAggr = do.call(rbind, lapply(countsAgg, function(X){X$x}))
+colnames(countsAggr) = countsAgg[[1]]$Group.1
+#saveRDS(countsAggr, "~/Desktop/RESEARCH_J/Lum_Myo_countsAggr.rds")
+
+
+countsAgg = apply(countsMyo, 1, function(x){aggregate(x, FUN = sum, by = list(sampleMyo))})
+countsAggr = do.call(rbind, lapply(countsAgg, function(X){X$x}))
+colnames(countsAggr) = countsAgg[[1]]$Group.1
+#saveRDS(countsAggr, "~/Desktop/RESEARCH_J/Lum_Myo_countsAggrMyo.rds")
+
+```
+
+
+```{r}
+countsAggr = readRDS("~/Desktop/RESEARCH_J/Lum_Myo_countsAggrMyo.rds")
+countsFilt = countsAggr[apply(countsAggr, 1, function(x){length(x[x>5])>=2} ),]
+ids = table(Sample,race)[,1]>0
+LumMyo.Myo.edgeR = Run_edgeR(countsFilt, ids)
+saveRDS(LumMyo.Myo.edgeR, "~/Desktop/RESEARCH_J/LumMyo.Myo.edgeR.rds")
+```
+
+Using heirarchical model with edgeR, not mixed version
+```{r}
+	countsMyoFilt = countsMyo[apply(countsMyo, 1, function(x){length(x[x>5])>=2} ),]
+
+	##AA : KCR7195 KCR8195 KCR8302 KCR8451 KCR8483 KCR8519 KCR8580 KCR8617
+	##EA : KCR7518 KCR7554 KCR7953 KCR8084 KCR8474 KCR8523 KCR8565
+
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = - (cells$Sample == "KCR7195") + (cells$Sample == "KCR8617")
+	cells$KCR8195 = - (cells$Sample == "KCR8195") + (cells$Sample == "KCR8617")
+	cells$KCR8302 = - (cells$Sample == "KCR8302") + (cells$Sample == "KCR8617")
+	cells$KCR8451 = - (cells$Sample == "KCR8451") + (cells$Sample == "KCR8617")
+	cells$KCR8483 = - (cells$Sample == "KCR8483") + (cells$Sample == "KCR8617")
+	cells$KCR8519 = - (cells$Sample == "KCR8519") + (cells$Sample == "KCR8617")
+	cells$KCR8580 = - (cells$Sample == "KCR8580") + (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+
+	cells$det = -log(nrow(countsMyoFilt)/colSums(countsMyoFilt > 0)-1) #Using logit transformation
+
+	d=DGEList(countsMyoFilt)
+	d=suppressWarnings(calcNormFactors(d))
+	design=model.matrix(~Race + KCR7195+KCR8195+KCR8302+KCR8451+KCR8483+KCR8519+KCR8580+
+								KCR7518+KCR7554+KCR7953+KCR8084+KCR8474+KCR8523+det, data = cells)
+	#Need to round imputed counts
+	weights <- zeroWeightsLS(counts=round(d$counts), design=design, maxit=200, normalization="TMM")
+	d$weights <- weights
+	d=estimateDisp(d, design)
+	fit=glmFit(d,design)
+	lrt=glmWeightedF(fit,coef=2, independentFiltering = TRUE)
+	
+saveRDS(lrt$table, "~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.edgeR.Myoonly.rds")	
+#	return(lrt$table[,c("logFC","PValue","padjFilter")])
+
+	
+```
+
+Linear version of real data
+```{r}
+Run_linear_hier <- function(data,XZ) {
+	lmhier = function(Y) {
+		outhier = lm(as.formula(sprintf("Y~%s",paste(c(colnames(XZ)),collapse = "+"))), data= data.frame(XZ))
+		return(summary(outhier)$coefficients[2,])
+	}
+	outhier = data.frame(t(apply(data, 1, lmhier)))
+	colnames(outhier) = c("Estimate","Std.Error","t","pvalue")
+	return(outhier)
+}
+
+	countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	countsMyo   <- countsMyo[unfilterIdx,]
+	
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = (cells$Sample == "KCR7195") - (cells$Sample == "KCR8617")
+	cells$KCR8195 = (cells$Sample == "KCR8195") - (cells$Sample == "KCR8617")
+	cells$KCR8302 = (cells$Sample == "KCR8302") - (cells$Sample == "KCR8617")
+	cells$KCR8451 = (cells$Sample == "KCR8451") - (cells$Sample == "KCR8617")
+	cells$KCR8483 = (cells$Sample == "KCR8483") - (cells$Sample == "KCR8617")
+	cells$KCR8519 = (cells$Sample == "KCR8519") - (cells$Sample == "KCR8617")
+	cells$KCR8580 = (cells$Sample == "KCR8580") - (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+	
+	cells$det = log(apply(countsMyo, 2, sum))
+
+	
+	out = Run_linear_hier(countsMyo, cells)
+	saveRDS(out, "~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.linhier.Myoonly.rds")
+```
+
+
+
+
+Comparing edgeR and new
+```{r}
+plot(Myores$beta[Myores$converged]/log(2), lrt$table$logFC[Myores$converged])
+abline(0,1,col="red")
+ plot(-log10(Myores$pvalue[Myores$converged]), -log10(lrt$table$PValue[Myores$converged]), xlim = c(0,7), ylim = c(0,7))
+ abline(h = -log10(0.05), col = "red")
+ abline(v = -log10(0.05), col = "red")
+```
+
+Simulations
+```{r}
+
+make_mix_sims <- function(ngenes, offset, mu, X, beta, Z, sigmau, sigmae) {
+	out = matrix(0, ngenes, length(X)) 
+	n = length(X)
+	p = ncol(Z)
+	for (i in 1:ngenes) {
+		u = rnorm(p, 0, sigmau)
+		udiff = (mean(u[1:(p/2)])-mean(u[(p/2+1):p]))/2
+		u = u - c(rep( udiff , p/2 ), rep(-udiff,p/2))
+		e = rnorm(n, 0, sigmae)
+		lambdas = offset*exp(mu+X*beta+Z %*% u + e)
+		out[i,] = rpois(n, lambdas)
+	}
+	return(out)
+}
+
+```
+
+Initializing several versions
+```{r}
+offset = readRDS("~/Desktop/RESEARCH_X/LumMyo_offsets.rds")
+#offset = readRDS("~/justin/LumMyo_offsets.rds")
+
+nper = 50
+inds = 20
+
+n = inds*nper
+set.seed(1717)
+offsets.sim = matrix(sample(offset, n),1,n)
+X = c(rep(0,n/2),rep(1,n/2))-0.5
+samp = sort(rep(1:inds,nper))
+Z = matrix(0,n,inds)
+colnames(Z) = 1:inds
+rownames(Z) = 1:n
+Z[cbind(1:n,samp)] = 1
+Zind = Z[,-c(inds,inds/2)]
+Zind[as.logical(Z[,4]),1:3]=-1
+Zind[as.logical(Z[,8]),4:6]=-1
+XZ = data.frame(cbind(X, Zind))
+counts.sim = make_mix_sims(1000, as.vector(offsets.sim), -7, X, 1, Z, 0.25, 1)
+
+```
+
+```{r}
+t = proc.time()
+outSim = pqlseq(counts.sim, X, NULL, RelatednessMatrix = Z, LibSize = offsets.sim, lowrank = TRUE,numCore=1)
+proc.time() - t
+
+t = proc.time()
+outSimSlow = pqlseq(counts.sim, X, NULL, RelatednessMatrix = tcrossprod(Z,Z), LibSize = offsets.sim,numCore=1)
+proc.time() - t
+
+```
+
+
+Running simulations with various parameter changes
+
+Default mu, beta, sigmau, sigmae, n, n per:
+-7, 0.25, 0.25, 1, 2000, 50
+```{r}
+run_PQLlow_sim_test <- function(offsets.sim, mu, X, beta, Z, sigmau, sigmae, filename) {
+	counts.sim = make_mix_sims(1000, as.vector(offsets.sim), mu, X, beta, Z, sigmau, sigmae)
+	outSim = pqlseq(counts.sim, X, NULL, RelatednessMatrix = Z, LibSize = offsets.sim, lowrank = TRUE,numCore=1)
+	saveRDS(outSim, sprintf("~/PQLlowsims/%s",filename))
+}
+
+```
+
+```{r}
+for (mu in c(-4,-10)) {
+	run_PQLlow_sim_test(offsets.sim, mu, X, 0.25, Z, 0.25, 1, sprintf("PQLlowsim.mu%s_1000x20.rds",mu))
+}
+
+for (sigmau in c(0.1, 0.33, 0.5)) {
+	run_PQLlow_sim_test(offsets.sim, -7, X, 0.25, Z,sigmau, 1, sprintf("PQLlowsim.sigmau%s_1000x20.rds",sigmau))
+}
+
+for (sigmae in c(0.25, 0.5, 1.5, 2)) {
+	run_PQLlow_sim_test(offsets.sim, -7, X, 0.25, Z, 0.25, sigmae, sprintf("PQLlowsim.sigmae%s_1000x20.rds",sigmae))
+}
+
+
+
+```
+
+```{r}
+summary(out$pvalue)
+
+```
+
+
+Running simulations in edgeR
+
+```{r}
+library(edgeR) 
+library(zingeR)
+Run_edgeR <- function(data,ids) {
+	d=DGEList(data)
+	d=suppressWarnings(calcNormFactors(d))
+	design=model.matrix(~ids)
+	#Need to round imputed counts
+	weights <- zeroWeightsLS(counts=round(d$counts), design=design, maxit=200, normalization="TMM")
+	d$weights <- weights
+	d=estimateDisp(d, design)
+	fit=glmFit(d,design)
+	lrt=glmWeightedF(fit,coef=2, independentFiltering = TRUE)
+	return(lrt$table[,c("logFC","PValue","padjFilter")])
+}
+
+Run_edgeR_hier <- function(data,XZ) {
+	d=DGEList(data)
+	d=suppressWarnings(calcNormFactors(d))
+	
+	design=model.matrix(as.formula(sprintf("~%s",paste(c(colnames(XZ)),collapse = "+"))), data = XZ)
+	#Need to round imputed counts
+	weights <- zeroWeightsLS(counts=round(d$counts), design=design, maxit=200, normalization="TMM")
+	d$weights <- weights
+	d=estimateDisp(d, design)
+	fit=glmQLFit(d,design)
+	qlf = glmQLFTest(fit, coef=1)
+	return(qlf$table)
+	#lrt=glmWeightedF(fit,coef=2, independentFiltering = TRUE)
+	#return(lrt$table[,c("logFC","PValue","padjFilter")])
+}
+```
+
+```{r}
+for (beta in c((0:4)/4)){
+#beta = 0.25
+	print(beta)
+counts.sim = make_mix_sims(1000, as.vector(offsets.sim), -7, X, beta, Z, 0.25, 1)
+
+outSimEdgeR = Run_edgeR_hier(counts.sim, XZ)
+saveRDS(outSimEdgeR, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.edgeRh.%s_1000x20.rds",beta))
+}
+```
+
+
+```{r}
+for (beta in ((0:4)/4)) {
+print(beta)
+counts.sim = make_mix_sims(1000, as.vector(offsets.sim), -7, X, beta, Z, 0.25, 1)
+
+counts.sim.agg = counts.sim %*% Z
+p = ncol(Z)
+Xagg = c(rep(0,p/2),rep(1,p/2))-0.2
+outSimEdgeRAgg = Run_edgeR(counts.sim.agg, Xagg)
+saveRDS(outSimEdgeRAgg, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.edgeRAgg.%s_1000x20.rds",beta))
+}
+```
+
+Running simulations in linear regression
+```{r}
+Run_linear_hier <- function(data,XZ) {
+	lmhier = function(Y) {
+		outhier = lm(as.formula(sprintf("Y~%s",paste(c(colnames(XZ)),collapse = "+"))), data= data.frame(data))
+		return(summary(outhier)$coefficients[2,])
+	}
+	outhier = data.frame(t(apply(data, 1, lmhier)))
+	colnames(outhier) = c("Estimate","Std.Error","t","pvalue")
+	return(outhier)
+}
+
+```
+
+
+
+```{r}
+for (beta in c((0:4)/4)){
+#beta = 0.25
+	print(beta)
+counts.sim = make_mix_sims(1000, as.vector(offsets.sim), -7, X, beta, Z, 0.25, 1)
+
+outSimLinH = Run_linear_hier(counts.sim, XZ)
+saveRDS(outSimLinH, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.lineH.%s_1000x20.rds",beta))
+}
+
+```
+
+
+Running simulations in limma
+```{r}
+library(limma)
+#Uses normalzied
+Run_limma_hier = function(data, XZ) {
+
+	#mType <- factor(XZ)
+	nf <- edgeR::calcNormFactors(data)
+	design=model.matrix(as.formula(sprintf("~%s",paste(c(colnames(XZ)),collapse = "+"))), data = XZ)
+	y <- voom(data, design, lib.size = apply(data,2,sum)*nf)
+	fit <- lmFit(y,design)
+	fit <- eBayes(fit)
+	Limma_results <- topTable(fit,coef=2,n=nrow(fit))
+	return(Limma_results)
+}
+
+```
+
+```{r}
+for (beta in c((0:4)/4)){
+#beta = 0.25
+	print(beta)
+counts.sim = make_mix_sims(1000, as.vector(offsets.sim), -7, X, beta, Z, 0.25, 1)
+
+outSimLimma = Run_limma_hier(counts.sim, XZ)
+saveRDS(outSimLimma, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.limma.%s_1000x20.rds",beta))
+}
+
+```
+
+Running simulations in MAST
+```{r eval=F}
+library(MAST)
+Run_MAST <- function(data,ids) {
+	print("Running MAST")
+	if (is.null(colnames(data))) {colnames(data) = 1:ncol(data)}
+	th = MAST::thresholdSCRNACountMatrix((data), conditions = ids, nbins = 40, data_log = FALSE) 
+	thdata = th$counts_threshold
+	if (is.null(rownames(thdata))) {rownames(thdata) = 1:nrow(thdata)}
+
+
+	cs = apply(thdata, 2, sum) 
+	thdata = thdata[,cs>0]
+	
+	rs = apply(thdata, 1, sum) 
+	thdata = thdata[rs>log2(1e4),]
+	
+	fData = data.frame(primerid=rownames(thdata))
+	cData = data.frame(Population=ids, wellKey=colnames(thdata))
+	sca = FromMatrix( (log(thdata+1)), cData, fData, class="SingleCellAssay")
+	
+	modelfit = zlm(~ Population, sca)
+	lrt = lrTest(modelfit, "Population") # returns 3 dimensonal array
+	
+	out = data.frame(P.Value = lrt[,3,3],row.names = names(lrt[,3,3]))
+	
+}
+```
+
+```{r}
+for (beta in c((0:4)/4)){
+#beta = 0.25
+	print(beta)
+counts.sim = make_mix_sims(1000, as.vector(offsets.sim), -7, X, beta, Z, 0.25, 1)
+
+outSimMAST = Run_MAST(counts.sim, X)
+saveRDS(outSimMAST, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.MAST.%s_1000x20.rds",beta))
+}
+
+```
+
+Running simulations in DESeq2
+zingeR+DESeq2
+```{r eval=F}
+library(DESeq2)
+library(zingeR)
+Run_DESeq2 <- function(data, XZ) {
+	XZ = XZ[,ncol(XZ):1]
+	colData=data.frame(XZ)
+	model_formula = as.formula(sprintf("~%s",paste(c(colnames(XZ)),collapse = "+")))
+	design=model.matrix(model_formula, data = XZ)
+
+	dse=DESeqDataSetFromMatrix(countData=round(data), colData=colData, design=model_formula)
+	weights <- zeroWeightsLS(counts=round(as.matrix(data)), design=design, maxit=200, 
+							 normalization="DESeq2_poscounts", colData=colData, designFormula=model_formula)
+	assays(dse)[["weights"]]=weights
+	dse = DESeq2::estimateSizeFactors(dse, type="poscounts")
+	dse = estimateDispersions(dse)
+	dse = nbinomWaldTest(dse, betaPrior=TRUE, useT=TRUE, df=rowSums(weights)-2)
+	res = results(dse)
+	return(data.frame(row.names = res@rownames, log2FoldChange = res$log2FoldChange,
+					  pvalue = res$pvalue, padj = res$padj))
+}
+```
+
+```{r}
+for (beta in c((0:4)/4)){
+#beta = 0.25
+	print(beta)
+counts.sim = make_mix_sims(1000, as.vector(offsets.sim), -7, X, beta, Z, 0.25, 1)
+
+outSimDESeq2 = Run_DESeq2(counts.sim, XZ)
+saveRDS(outSimDESeq2, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.DESeq2.%s_1000x20.rds",beta))
+}
+```
+
+Running simulations in SCDE
+```{r}
+library(SCDE)
+run_SCDE <- function(data, ids) {
+	sg = factor(ids)
+	
+	o.ifm <- scde.error.models(counts = data, groups = sg, n.cores = 1, threshold.segmentation = TRUE, save.crossfit.plots = FALSE, save.model.plots = FALSE, verbose = 1)
+	o.prior <- scde.expression.prior(models = o.ifm, counts = cd, length.out = 400, show.plot = FALSE)
+
+}
+
+```
+
+
+Simulation names:
+PQLlowsim.[beta]_[N]x[p].rds
+
+
+```{r}
+get_power <- function(resultspval, permutedpval, fdrthresh=0.05) {
+	thresh = resultspval[order(resultspval)][1:length(resultspval)] #Stop when FDR ≈ 20%
+	null_sig = sapply(thresh, function(x) {sum(permutedpval<=x)/length(permutedpval)})
+	alt_sig = sapply(thresh, function(x) {sum(resultspval<=x)/length(resultspval)})
+	fdr = null_sig/alt_sig
+	fdr[is.nan(fdr)] = 0
+	
+	power = sum(fdr<fdrthresh)/length(thresh)
+	
+	return(power)
+}
+```
+
+Loading in sim data
+```{r}
+n= 1000
+methods = c("",".edgeRh",".edgeRAgg",".lineH",".limma",".MAST", ".DESeq2")
+methodslab = c("PQLseq","edgeRHier","edgeRAgg","linearHier","limma","MAST","DESeq2")
+methodscol = c("black","blue","cyan","magenta","red","pink","green")
+pcols = c("pvalue","PValue","PValue","pvalue","P.Value", "P.Value", "pvalue")
+pvarray = array(0, c(n,length(methods),5))
+
+for (i in 1:length(methods)) {
+	method = methods[i]
+	for (beta in c((0:4)/4)) {
+		pvarray[,i,beta*4+1] = readRDS(sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim%s.%s_1000x20.rds",method,beta))[,pcols[i]]
+	}
+}
+
+
+
+powers = matrix(0,length(methods),4)
+for (i in 1:length(methods)) {
+	method = methods[i]
+	for (beta in c((1:4)/4)) {
+		powers[i,beta*4] = get_power(pvarray[,i,beta*4+1],pvarray[,i,1], 0.001)
+	}
+}
+
+```
+
+```{r}
+plot((1:4)/4,powers[1,], ylim = c(0,1), xlim = c(0,1),type = "b", pch = 20, xlab = "Simulated beta", ylab = "FDR-controlled Power", main = "FDR 0.001")
+for (i in 2:length(methods)) {
+points((1:4)/4,powers[i,],col = methodscol[i], type = "b", pch = 20)
+}
+legend("topleft",legend =  methodslab, col = methodscol,pch = 20)
+
+```
+
+Power with other simulations
+```{r}
+null = readRDS(sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim%s.%s_1000x20.rds","",0))[,pcols[1]]
+PQLmun4 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.mu-4_1000x20.rds")[,pcols[1]]
+PQLmu10 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.mu-10_1000x20.rds")[,pcols[1]]
+PQLse0.25 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.sigmae0.25_1000x20.rds")[,pcols[1]]
+PQLse0.5 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.sigmae0.5_1000x20.rds")[,pcols[1]]
+PQLse1.5 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.sigmae1.5_1000x20.rds")[,pcols[1]]
+PQLsu0.1 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.sigmau0.1_1000x20.rds")[,pcols[1]]
+PQLsu0.5 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.sigmau0.5_1000x20.rds")[,pcols[1]]
+PQLsu0.33 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.sigmau0.33_1000x20.rds")[,pcols[1]]
+
+get_power(PQLmun4, null)
+get_power(PQLmu10, null)
+get_power(PQLsu0.1, null)
+get_power(PQLsu0.33, null)
+get_power(PQLsu0.5, null)
+get_power(PQLse0.25, null)
+get_power(PQLse0.5, null)
+get_power(PQLse1.5, null)
+
+```
+
+
+QQplots
+```{r}
+	ymax = max(-log10(pvarray[,1:length(methods),1]))
+	
+	plot(-log10((1:1000)/1000), -log10(sort(pvarray[,1,1])), ylim = c(0,ymax), pch = 20,
+		 xlab = "-log10 Uniform",ylab = "-log10 p-value", main = "Type 1 error plot", type = "l")
+	for (i in 2:length(methods)) {
+		lines(-log10((1:1000)/1000), -log10(sort(pvarray[,i,1])), col = methodscol[i], pch = 20)
+	}
+
+	abline(0,1, col = "grey")
+	legend("topleft",legend =  methodslab, col = methodscol,pch = 20)
+
+```
+
+
+
+Trying out jackknifes
+```{r}
+run_PQLlow_outlier_test <- function(offsets.sim, mu, X, beta, Z, sigmau, sigmae, filename) {
+	counts.sim = make_mix_sims(1000, as.vector(offsets.sim), mu, X, beta, Z, sigmau, sigmae)
+	
+	outSim = pqlseq(counts.sim, X, NULL, RelatednessMatrix = Z, LibSize = offsets.sim, lowrank = TRUE,numCore=1)
+	saveRDS(outSim, sprintf("~/PQLlowsims/%s",filename))
+}
+
+
+```
+
+
+```{r}
+counts.sim = make_mix_sims(1000, as.vector(offsets.sim), -7, X, 0.25, Z, 0.25, 1)
+counts.sim[,1000] = 2*counts.sim[,1000]
+offsets.sim[,1000] = 2*offsets.sim[,1000]
+	outSim = pqlseq(counts.sim, X, NULL, RelatednessMatrix = Z, LibSize = offsets.sim, lowrank = TRUE,numCore=1)
+
+counts.jack = counts.sim[,-1000]
+X.jack = X[-1000]
+Z.jack = Z[-1000,]
+offsets.jack = t(as.matrix(offsets.sim[,-1000]))
+	
+	outSimjack = pqlseq(counts.jack, X.jack, NULL, RelatednessMatrix = Z.jack, LibSize = offsets.jack, lowrank = TRUE,numCore=1)
+
+saveRDS(outSim, "~/PQLlowsims/PQLlowsim.outlier2.rds")
+saveRDS(outSimjack, "~/PQLlowsims/PQLlowsim.outlier2jack.rds")
+
+```
+
+
+```{r}
+outlierSim2 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.outlier2.rds")
+outlierSim2jack = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.outlier2jack.rds")
+outlierSim10 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.outlier10.rds")
+outlierSim10jack = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlowsim.outlier10jack.rds")
+
+
+par(mfrow=c(2,2))
+plot(outlierSim2$beta, outlierSim2jack$beta, main = "x2 outlier Betas", xlab = "With outlier", ylab = "Outlier removed")
+abline(0,1,col= "red")
+plot(-log10(outlierSim2$pvalue), -log10(outlierSim2jack$pvalue), main = "x2 outlier PValues", xlab = "With outlier", ylab = "Outlier removed")
+abline(0,1,col= "red")
+
+plot(outlierSim10$beta, outlierSim10jack$beta, main = "x10 outlier Betas", xlab = "With outlier", ylab = "Outlier removed")
+abline(0,1,col= "red")
+plot(-log10(outlierSim10$pvalue), -log10(outlierSim10jack$pvalue), main = "x10 outlier PValues", xlab = "With outlier", ylab = "Outlier removed")
+abline(0,1,col= "red")
+```
+
+Splitting data for Jaccard index
+```{r}
+devtools::load_all("~/PQLseq-master/")
+load("~/justin/Lum_Myo_Merge.Robj")
+counts = Lum_Myo_Merge@assays$RNA@counts
+Sample = Lum_Myo_Merge@meta.data$Sample
+race = Lum_Myo_Merge@meta.data$Race
+
+countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+
+unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+countsMyo   <- countsMyo[unfilterIdx,]
+
+t = table(sampleMyo)
+s = sapply(t, function(x){sample(seq_len(x), floor(x/2))})
+o = cumsum(c(0,t[-length(t)]))
+s = sapply(1:length(s), function(i){s[i][[1]]+o[i]})
+s = do.call(c, s)
+
+countsMyo1 = countsMyo[,s]
+sampleMyo = sampleMyo[s]
+raceMyo = raceMyo[s]
+
+Z = matrix(0,length(sampleMyo),length(table(sampleMyo)))
+colnames(Z) = names(table(sampleMyo))
+rownames(Z) = countsMyo1@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleMyo)] = 1
+LibSize <- apply(countsMyo1, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+
+outMyo1 = pqlseq(countsMyo1, (raceMyo=="AA"), NULL, RelatednessMatrix = Z, LibSize = LibSize, lowrank = TRUE,numCore=3)
+saveRDS(outMyo1,"~/PQLlowsims/PQLlow_split-Myo1.rds")
+
+#####
+
+sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+
+countsMyo2 = countsMyo[,-s]
+sampleMyo = sampleMyo[-s]
+raceMyo = raceMyo[-s]
+
+Z = matrix(0,length(sampleMyo),length(table(sampleMyo)))
+colnames(Z) = names(table(sampleMyo))
+rownames(Z) = countsMyo2@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleMyo)] = 1
+LibSize <- apply(countsMyo2, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+outMyo2 = pqlseq(countsMyo2, (raceMyo=="AA"), NULL, RelatednessMatrix = Z, LibSize = LibSize, lowrank = TRUE,numCore=3)
+saveRDS(outMyo2, "~/PQLlowsims/PQLlow_split-Myo2.rds")
+
+```
+
+```{r}
+outMyo1 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_split-Myo1.rds")
+outMyo2 = readRDS("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_split-Myo2.rds")
+
+outMyoMerge = merge(outMyo1, outMyo2, by= "row.names")
+
+get_Jaccard <- function(pvals1, pvals2, title = "", thresh = 5E-6) {
+	plot(-log10(pvals1+1E-200), -log10(pvals2+1E-200), pch = 20, main = title, xlab = "-log10 pval split1", ylab = "-log10 pval split2")
+	abline(0,1)
+	Jaccard = sum(pvals1<thresh & pvals2<thresh, na.rm = T)/sum(pvals1<thresh | pvals2<thresh,na.rm = T)
+	return(Jaccard)
+}
+
+get_Jaccard(outMyoMerge$pvalue.x, outMyoMerge$pvalue.y)
+
+
+#send in as 2-columns, first column being gene name, second being p-value
+get_Jaccard_number <- function(results1, results2, threshes, title = "") {
+	Jaccard_single = function(results1, results2, thresh) {
+		names1 = results1$id[order(results1$pvalue)][1:thresh]
+		names2 = results2$id[order(results2$pvalue)][1:thresh]
+		return(length(intersect(names1, names2))/thresh)
+	}
+	
+	return(sapply(threshes, function(t) {Jaccard_single(results1, results2, t)}))
+}
+```
+
+
+
+
+
+
+Randomizing real data
+```{r}
+load("~/Desktop/RESEARCH_J//Lum_Myo_Merge.Robj")
+counts = Lum_Myo_Merge@assays$RNA@counts
+Sample = Lum_Myo_Merge@meta.data$Sample
+race = Lum_Myo_Merge@meta.data$Race
+
+countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+
+unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+countsMyo   <- countsMyo[unfilterIdx,]
+
+s = sample(seq_len(length(sampleMyo)))
+
+sampleMyo = sampleMyo[s]
+raceMyo = raceMyo[s]
+
+Z = matrix(0,length(sampleMyo),length(table(sampleMyo)))
+colnames(Z) = names(table(sampleMyo))
+rownames(Z) = countsMyo@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleMyo)] = 1
+LibSize <- apply(countsMyo, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+```
+
+Lum version
+```{r}
+load("~/Desktop/RESEARCH_J//Lum_Myo_Merge.Robj")
+counts = Lum_Myo_Merge@assays$RNA@counts
+Sample = Lum_Myo_Merge@meta.data$Sample
+race = Lum_Myo_Merge@meta.data$Race
+
+countsLum = counts[,Lum_Lum_Merge@meta.data$Lum_Lum=="Lum"]
+sampleLum = Sample[Lum_Lum_Merge@meta.data$Lum_Lum=="Lum"]
+raceLum = race[Lum_Lum_Merge@meta.data$Lum_Lum=="Lum"]
+
+unfilterIdx <- apply(countsLum, 1, function(x){length(x[x>5])>=2} )
+countsLum   <- countsLum[unfilterIdx,]
+
+s = sample(seq_len(length(sampleLum)))
+
+sampleLum = sampleLum[s]
+raceLum = raceLum[s]
+
+Z = matrix(0,length(sampleLum),length(table(sampleLum)))
+colnames(Z) = names(table(sampleLum))
+rownames(Z) = countsLum@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleLum)] = 1
+LibSize <- apply(countsLum, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+
+```
+
+Randomizing real data, only by sample
+```{r}
+load("~/Desktop/RESEARCH_J//Lum_Myo_Merge.Robj")
+counts = Lum_Myo_Merge@assays$RNA@counts
+Sample = Lum_Myo_Merge@meta.data$Sample
+race = Lum_Myo_Merge@meta.data$Race
+
+countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+
+unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+countsMyo   <- countsMyo[unfilterIdx,]
+
+
+t = table(sampleMyo, raceMyo)>0
+s = sample(1:nrow(t))
+t = t[s,]
+
+raceMyo = sapply(sampleMyo, function(x) { colnames(t)[t[x,]]})
+
+Z = matrix(0,length(sampleMyo),length(table(sampleMyo)))
+colnames(Z) = names(table(sampleMyo))
+rownames(Z) = countsMyo@Dimnames[[2]]
+Z[cbind(rownames(Z),sampleMyo)] = 1
+LibSize <- apply(countsMyo, 2, sum)
+LibSize <- t(as.matrix(LibSize))
+```
+
+
+Running EdgeR on randomized data
+```{r}
+library(edgeR) 
+library(zingeR)
+Run_edgeR_hier <- function(data,XZ) {
+	d=DGEList(data)
+	d=suppressWarnings(calcNormFactors(d))
+	
+	design=model.matrix(as.formula(sprintf("~%s",paste(c(colnames(XZ)),collapse = "+"))), data = XZ)
+	#Need to round imputed counts
+	weights <- zeroWeightsLS(counts=round(d$counts), design=design, maxit=200, normalization="TMM")
+	d$weights <- weights
+	d=estimateDisp(d, design)
+	fit=glmQLFit(d,design)
+	qlf = glmQLFTest(fit, coef=2)
+	return(qlf$table)
+	#lrt=glmWeightedF(fit,coef=2, independentFiltering = TRUE)
+	#return(lrt$table[,c("logFC","PValue","padjFilter")])
+}
+
+	countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	countsMyo   <- countsMyo[unfilterIdx,]
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = - (cells$Sample == "KCR7195") + (cells$Sample == "KCR8617")
+	cells$KCR8195 = - (cells$Sample == "KCR8195") + (cells$Sample == "KCR8617")
+	cells$KCR8302 = - (cells$Sample == "KCR8302") + (cells$Sample == "KCR8617")
+	cells$KCR8451 = - (cells$Sample == "KCR8451") + (cells$Sample == "KCR8617")
+	cells$KCR8483 = - (cells$Sample == "KCR8483") + (cells$Sample == "KCR8617")
+	cells$KCR8519 = - (cells$Sample == "KCR8519") + (cells$Sample == "KCR8617")
+	cells$KCR8580 = - (cells$Sample == "KCR8580") + (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+	
+	cells$det = log(apply(countsMyo, 2, sum))
+
+
+	outr = Run_edgeR_hier(countsMyo, cells[,-2])
+	saveRDS(outr, "~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.limma.Myoonly.rds")
+
+
+for (trial in 1:3  ) {
+
+	countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	countsMyo   <- countsMyo[unfilterIdx,]
+	
+	#s = sample(seq_len(length(sampleMyo)))
+	#sampleMyo = sampleMyo[s]
+	#raceMyo = raceMyo[s]
+	
+	t = table(sampleMyo, raceMyo)>0
+	s = sample(1:nrow(t))
+	t = t[s,]
+	raceMyo = sapply(sampleMyo, function(x) { colnames(t)[t[x,]]})
+	
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = - (cells$Sample == "KCR7195") + (cells$Sample == "KCR8617")
+	cells$KCR8195 = - (cells$Sample == "KCR8195") + (cells$Sample == "KCR8617")
+	cells$KCR8302 = - (cells$Sample == "KCR8302") + (cells$Sample == "KCR8617")
+	cells$KCR8451 = - (cells$Sample == "KCR8451") + (cells$Sample == "KCR8617")
+	cells$KCR8483 = - (cells$Sample == "KCR8483") + (cells$Sample == "KCR8617")
+	cells$KCR8519 = - (cells$Sample == "KCR8519") + (cells$Sample == "KCR8617")
+	cells$KCR8580 = - (cells$Sample == "KCR8580") + (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+	
+	cells$det = log(apply(countsMyo, 2, sum))
+
+
+	outr = Run_edgeR_hier(countsMyo, cells[,-2])
+	saveRDS(outr, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms_samp.edgeR-%s.rds", trial))
+}
+#
+
+```
+
+Running EdgeR agg on randomized data
+```{r}
+library(edgeR) 
+library(zingeR)
+Run_edgeR <- function(data,ids) {
+	d=DGEList(data)
+	d=suppressWarnings(calcNormFactors(d))
+	design=model.matrix(~ids)
+	#Need to round imputed counts
+	weights <- zeroWeightsLS(counts=round(d$counts), design=design, maxit=200, normalization="TMM")
+	d$weights <- weights
+	d=estimateDisp(d, design)
+	fit=glmFit(d,design)
+	lrt=glmWeightedF(fit,coef=2, independentFiltering = TRUE)
+	return(lrt$table[,c("logFC","PValue","padjFilter")])
+}
+
+countsAggr = readRDS("~/Desktop/RESEARCH_J/Lum_Myo_countsAggrMyo.rds")
+countsFilt = countsAggr[apply(countsAggr, 1, function(x){length(x[x>5])>=2} ),]
+ids = table(Sample,race)[,1]>0
+
+	outr = Run_edgeR(countsFilt, ids)
+	saveRDS(outr, "~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.edgeRAgg.Myoonly.rds")
+
+for (trial in 1:3  ) {
+
+	outr = Run_edgeR(countsFilt, sample(ids))
+	saveRDS(outr, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms_samp.edgeRAgg-%s.rds", trial))
+}
+#
+
+```
+
+Running linear reg on randomized data
+```{r}
+Run_linear_hier <- function(data,XZ) {
+	lmhier = function(Y) {
+		outhier = lm(as.formula(sprintf("Y~%s",paste(c(colnames(XZ)),collapse = "+"))), data= data.frame(XZ))
+		return(summary(outhier)$coefficients[2,])
+	}
+	outhier = data.frame(t(apply(data, 1, lmhier)))
+	colnames(outhier) = c("Estimate","Std.Error","t","pvalue")
+	return(outhier)
+}
+
+for (trial in 1:3) {
+	countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	countsMyo   <- countsMyo[unfilterIdx,]
+	
+	s = sample(seq_len(length(sampleMyo)))
+	
+	sampleMyo = sampleMyo[s]
+	raceMyo = raceMyo[s]
+	
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = (cells$Sample == "KCR7195") - (cells$Sample == "KCR8617")
+	cells$KCR8195 = (cells$Sample == "KCR8195") - (cells$Sample == "KCR8617")
+	cells$KCR8302 = (cells$Sample == "KCR8302") - (cells$Sample == "KCR8617")
+	cells$KCR8451 = (cells$Sample == "KCR8451") - (cells$Sample == "KCR8617")
+	cells$KCR8483 = (cells$Sample == "KCR8483") - (cells$Sample == "KCR8617")
+	cells$KCR8519 = (cells$Sample == "KCR8519") - (cells$Sample == "KCR8617")
+	cells$KCR8580 = (cells$Sample == "KCR8580") - (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+	
+	cells$det = log(apply(countsMyo, 2, sum))
+	
+	outLumMyolinrand = Run_linear_hier(countsMyo, cells[,c(-2)])
+	saveRDS(outLumMyolinrand, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms.lineH-%s.rds", trial))
+}
+```
+
+Running limma on randomized data
+```{r}
+library(limma)
+#Uses normalzied
+Run_limma_hier = function(data, XZ) {
+
+	#mType <- factor(XZ)
+	nf <- edgeR::calcNormFactors(data)
+	design=model.matrix(as.formula(sprintf("~%s",paste(c(colnames(XZ)),collapse = "+"))), data = XZ)
+	y <- voom(data, design, lib.size = apply(data,2,sum)*nf)
+	fit <- lmFit(y,design)
+	fit <- eBayes(fit)
+	Limma_results <- topTable(fit,coef=2,n=nrow(fit))
+	return(Limma_results)
+}
+
+	countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	countsMyo   <- countsMyo[unfilterIdx,]
+	
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = - (cells$Sample == "KCR7195") + (cells$Sample == "KCR8617")
+	cells$KCR8195 = - (cells$Sample == "KCR8195") + (cells$Sample == "KCR8617")
+	cells$KCR8302 = - (cells$Sample == "KCR8302") + (cells$Sample == "KCR8617")
+	cells$KCR8451 = - (cells$Sample == "KCR8451") + (cells$Sample == "KCR8617")
+	cells$KCR8483 = - (cells$Sample == "KCR8483") + (cells$Sample == "KCR8617")
+	cells$KCR8519 = - (cells$Sample == "KCR8519") + (cells$Sample == "KCR8617")
+	cells$KCR8580 = - (cells$Sample == "KCR8580") + (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+	
+	cells$det = log(apply(countsMyo, 2, sum))
+
+
+	outr = Run_limma_hier(countsMyo, cells[,-2])
+	saveRDS(outr, sprintf("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.limma.Myoonly.rds", trial))
+
+
+
+for (trial in 1:3) {
+	#countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	#unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	#countsMyo   <- countsMyo[unfilterIdx,]
+	
+	#s = sample(seq_len(length(sampleMyo)))
+	#sampleMyo = sampleMyo[s]
+	#raceMyo = raceMyo[s]
+	
+	t = table(sampleMyo, raceMyo)>0
+	s = sample(1:nrow(t))
+	t = t[s,]
+	raceMyo = sapply(sampleMyo, function(x) { colnames(t)[t[x,]]})
+	
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = - (cells$Sample == "KCR7195") + (cells$Sample == "KCR8617")
+	cells$KCR8195 = - (cells$Sample == "KCR8195") + (cells$Sample == "KCR8617")
+	cells$KCR8302 = - (cells$Sample == "KCR8302") + (cells$Sample == "KCR8617")
+	cells$KCR8451 = - (cells$Sample == "KCR8451") + (cells$Sample == "KCR8617")
+	cells$KCR8483 = - (cells$Sample == "KCR8483") + (cells$Sample == "KCR8617")
+	cells$KCR8519 = - (cells$Sample == "KCR8519") + (cells$Sample == "KCR8617")
+	cells$KCR8580 = - (cells$Sample == "KCR8580") + (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+	
+	cells$det = log(apply(countsMyo, 2, sum))
+
+
+	outr = Run_limma_hier(countsMyo, cells[,-2])
+	saveRDS(outr, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms_samp.limma-%s.rds", trial))
+}
+```
+
+Running MAST on randomized data
+```{r eval=F}
+library(MAST)
+Run_MAST <- function(data,ids) {
+	print("Running MAST")
+	if (is.null(colnames(data))) {colnames(data) = 1:ncol(data)}
+	th = MAST::thresholdSCRNACountMatrix((data), conditions = ids, nbins = 40, data_log = FALSE) 
+	thdata = th$counts_threshold
+	if (is.null(rownames(thdata))) {rownames(thdata) = 1:nrow(thdata)}
+
+
+	#cs = apply(thdata, 2, sum) 
+	#thdata = thdata[,cs>0]
+	#ids = ids[cs>0]
+	
+	#rs = apply(thdata, 1, sum) 
+	#thdata = thdata[rs>log2(1e4),]
+	
+	fData = data.frame(primerid=rownames(thdata))
+	cData = data.frame(Population=ids, wellKey=colnames(thdata))
+	sca = FromMatrix( (log(thdata+1)), cData, fData, class="SingleCellAssay")
+	
+	modelfit = zlm(~ Population, sca)
+	lrt = lrTest(modelfit, "Population") # returns 3 dimensonal array
+	
+	out = data.frame(P.Value = lrt[,3,3],row.names = names(lrt[,3,3]))
+	
+}
+
+	countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	countsMyo   <- countsMyo[unfilterIdx,]
+	
+	#cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	#cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	#cells$det = log(apply(countsMyo, 2, sum))
+
+
+	outr = Run_MAST(as.matrix(countsMyo), raceMyo)
+	saveRDS(outr, "~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.MAST.Myoonly.rds")
+
+
+
+for (trial in 1:3) {
+	#countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	#unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	#countsMyo   <- countsMyo[unfilterIdx,]
+	
+	#s = sample(seq_len(length(sampleMyo)))
+	#sampleMyo = sampleMyo[s]
+	#raceMyo = raceMyo[s]
+	
+	t = table(sampleMyo, raceMyo)>0
+	s = sample(1:nrow(t))
+	t = t[s,]
+	raceMyo = sapply(sampleMyo, function(x) { colnames(t)[t[x,]]})
+
+
+	outr = Run_MAST(as.matrix(countsMyo), raceMyo)
+	saveRDS(outr, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms_samp.MAST-%s.rds", trial))
+}
+```
+
+Running DESeq2 on randomized data
+
+```{r eval=F}
+library(DESeq2)
+library(zingeR)
+Run_DESeq2 <- function(data, XZ) {
+	XZ = XZ[,ncol(XZ):1]
+	colData=data.frame(XZ)
+	model_formula = as.formula(sprintf("~%s",paste(c(colnames(XZ)),collapse = "+")))
+	design=model.matrix(model_formula, data = XZ)
+
+	dse=DESeqDataSetFromMatrix(countData=round(data), colData=colData, design=model_formula)
+	weights <- zeroWeightsLS(counts=round(as.matrix(data)), design=design, maxit=200, 
+							 normalization="DESeq2_poscounts", colData=colData, designFormula=model_formula)
+	assays(dse)[["weights"]]=weights
+	dse = DESeq2::estimateSizeFactors(dse, type="poscounts")
+	dse = estimateDispersions(dse)
+	dse = nbinomWaldTest(dse, betaPrior=TRUE, useT=TRUE, df=rowSums(weights)-2)
+	res = results(dse)
+	return(data.frame(row.names = res@rownames, log2FoldChange = res$log2FoldChange,
+					  pvalue = res$pvalue, padj = res$padj))
+}
+
+	countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	countsMyo   <- countsMyo[unfilterIdx,]
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = - (cells$Sample == "KCR7195") + (cells$Sample == "KCR8617")
+	cells$KCR8195 = - (cells$Sample == "KCR8195") + (cells$Sample == "KCR8617")
+	cells$KCR8302 = - (cells$Sample == "KCR8302") + (cells$Sample == "KCR8617")
+	cells$KCR8451 = - (cells$Sample == "KCR8451") + (cells$Sample == "KCR8617")
+	cells$KCR8483 = - (cells$Sample == "KCR8483") + (cells$Sample == "KCR8617")
+	cells$KCR8519 = - (cells$Sample == "KCR8519") + (cells$Sample == "KCR8617")
+	cells$KCR8580 = - (cells$Sample == "KCR8580") + (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+	
+	cells$det = log(apply(countsMyo, 2, sum))
+
+
+	outr = Run_DESeq2(countsMyo, cells[,-2])
+	saveRDS(outr, "~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.DESeq2.Myoonly.rds")
+
+
+for (trial in 1:3  ) {
+
+	countsMyo = counts[,Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	sampleMyo = Sample[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	raceMyo = race[Lum_Myo_Merge@meta.data$Lum_Myo=="Myo"]
+	
+	unfilterIdx <- apply(countsMyo, 1, function(x){length(x[x>5])>=2} )
+	countsMyo   <- countsMyo[unfilterIdx,]
+	
+	#s = sample(seq_len(length(sampleMyo)))
+	#sampleMyo = sampleMyo[s]
+	#raceMyo = raceMyo[s]
+	
+	t = table(sampleMyo, raceMyo)>0
+	s = sample(1:nrow(t))
+	t = t[s,]
+	raceMyo = sapply(sampleMyo, function(x) { colnames(t)[t[x,]]})
+	
+	cells = data.frame(Race = raceMyo, Sample = sampleMyo, stringsAsFactors = F)
+	cells$Race = 0.5*((cells$Race == "AA")-(cells$Race=="EA"))
+	cells$KCR7195 = - (cells$Sample == "KCR7195") + (cells$Sample == "KCR8617")
+	cells$KCR8195 = - (cells$Sample == "KCR8195") + (cells$Sample == "KCR8617")
+	cells$KCR8302 = - (cells$Sample == "KCR8302") + (cells$Sample == "KCR8617")
+	cells$KCR8451 = - (cells$Sample == "KCR8451") + (cells$Sample == "KCR8617")
+	cells$KCR8483 = - (cells$Sample == "KCR8483") + (cells$Sample == "KCR8617")
+	cells$KCR8519 = - (cells$Sample == "KCR8519") + (cells$Sample == "KCR8617")
+	cells$KCR8580 = - (cells$Sample == "KCR8580") + (cells$Sample == "KCR8617")
+	
+	cells$KCR7518 =  (cells$Sample == "KCR7518") - (cells$Sample == "KCR8565")
+	cells$KCR7554 =  (cells$Sample == "KCR7554") - (cells$Sample == "KCR8565")
+	cells$KCR7953 =  (cells$Sample == "KCR7953") - (cells$Sample == "KCR8565")
+	cells$KCR8084 =  (cells$Sample == "KCR8084") - (cells$Sample == "KCR8565")
+	cells$KCR8474 =  (cells$Sample == "KCR8474") - (cells$Sample == "KCR8565")
+	cells$KCR8523 =  (cells$Sample == "KCR8523") - (cells$Sample == "KCR8565")
+	
+	cells$det = log(apply(countsMyo, 2, sum))
+
+
+	outr = Run_DESeq2(countsMyo, cells[,-2])
+	saveRDS(outr, sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms_samp.DESeq2-%s.rds", trial))
+}
+
+```
+
+
+
+Reading in randomized real data
+```{r}
+readPQLseqrealrand = function(i) {
+	if (file.exists(sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms-%s.rds",i))){
+		out = readRDS(sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms-%s.rds",i))
+		return(out[,c(2,4,7)])
+	}
+}
+
+readrand = function(method, i) {
+	if (file.exists(sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms_samp%s-%s.rds",method,i))){
+		out = readRDS(sprintf("~/Desktop/RESEARCH_X/PQLlowsims/PQLlow_realperms_samp%s-%s.rds",method,i))
+		return(out)
+	}
+}
+
+
+
+PQLlow.realsim = lapply(1:200, readPQLseqrealrand)
+PQLlow.realsim = do.call(rbind, PQLlow.realsim)
+
+
+#PQLlow.realsim.edgeR = lapply(1:2, readEdgeRrealrand)
+#PQLlow.realsim.edgeR = do.call(rbind, PQLlow.realsim.edgeR)
+
+
+#PQLlow.realsim.linhier = lapply(1:3, readlinhierrealrand)
+#PQLlow.realsim.linhier = do.call(rbind, PQLlow.realsim.linhier)
+
+
+methods = c("",".edgeRh",".edgeRAgg",".lineH",".limma",".MAST", ".DESeq2")
+methodslab = c("PQLseq","edgeRHier","edgeRAgg","linearHier","limma","MAST","DESeq2")
+methodscol = c("black","blue","cyan","magenta","red","pink","green")
+pcols = c("pvalue","PValue","PValue","pvalue","P.Value", "P.Value", "pvalue")
+
+for (i in 2:length(methods)) {
+	assign(sprintf("PQLlow.realsim%s",methods[i]),do.call(rbind, lapply(1:5, function(k){readrand(methods[i], k) })))
+}
+
+```
+
+QQ plot for randomized sample data
+```{r}
+ps = PQLlow.realsim[,pcols[1]]
+n = sum(!is.na(ps))
+plot(-log10((1:n)/n), -log10(sort(ps)), type = "l", main = "Type I error for real data permutations", xlab = "-log10 Uniform", ylab = "-log10 p-value", ylim = c(0,20))
+for (i in 2:length(methods)) {
+	ps = get(sprintf("PQLlow.realsim%s",methods[i]))[,pcols[i]]
+	n = sum(!is.na(ps))
+	lines(-log10((1:n)/n), -log10(sort(ps)), col = methodscol[i])
+}
+abline(0,1,col = "gray")
+legend("topleft",legend =  methodslab, col = methodscol,pch = 20)
+
+```
+
+FDR vs power for real data
+```{r}
+get_power <- function(resultspval, permutedpval, fdrthresh=0.05) {
+	resultspval = resultspval[!is.na(resultspval)]
+	permutedpval = permutedpval[!is.na(permutedpval)]
+	thresh = resultspval[order(resultspval)][1:ceiling(length(resultspval))] #Stop when FDR ≈ 20%
+	null_sig = sapply(thresh, function(x) {sum(permutedpval<=x)/length(permutedpval)})
+	alt_sig = sapply(thresh, function(x) {sum(resultspval<=x)/length(resultspval)})
+	fdr = null_sig/alt_sig
+	fdr[is.nan(fdr)] = 0
+	
+	power = sum(fdr<fdrthresh)/length(thresh)
+	
+	return(power)
+}
+
+
+Myores = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.Myoonly.rds")
+Myores.edgeRh = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.edgeRh.Myoonly.rds")
+Myores.edgeRAgg = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.edgeRAgg.Myoonly.rds")
+Myores.lineH = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.lineH.Myoonly.rds")
+Myores.limma = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.limma.Myoonly.rds")
+Myores.MAST = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.MAST.Myoonly.rds")
+Myores.DESeq2 = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.DESeq2.Myoonly.rds")
+
+
+methods = c("",".edgeRh",".edgeRAgg",".lineH",".limma",".MAST", ".DESeq2")
+methodslab = c("PQLseq","edgeRHier","edgeRAgg","linearHier","limma","MAST","DESeq2")
+methodscol = c("black","blue","cyan","magenta","red","pink","green")
+pcols = c("pvalue","PValue","PValue","pvalue","P.Value", "P.Value", "pvalue")
+
+
+powers = list()
+for (i in 1:length(methods)) {
+	powers[[i]] = get_power(get(sprintf("Myores%s",methods[i]))[,pcols[i]],
+							get(sprintf("PQLlow.realsim%s",methods[i]))[,pcols[i]], 0.05)
+	
+}
+
+
+```
+
+
+Comparing PQLseq vs EdgeR for Justin's data
+```{r}
+Myores = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.Myoonly.rds")
+MyoresEdgeR = readRDS("~/Desktop/RESEARCH_J/Lum_Myo.AAvEA.edgeR.Myoonly.rds")
+
+
+plot(Myores$beta[Myores$converged], MyoresEdgeR$logFC[Myores$converged]*log(2), xlab = "PQLseq beta", ylab = "EdgeR beta")
+abline(0,1,col="red")
+
+plot(-log10(Myores$pvalue[Myores$converged]), -log10(MyoresEdgeR$PValue[Myores$converged]), xlab = "PQLseq -log10 p-value", ylab = "EdgeR -log10 p-value")
+
+plot(-log10(Myores$pvalue[Myores$converged]), -log10(MyoresEdgeR$PValue[Myores$converged]), xlab = "PQLseq -log10 p-value", ylab = "EdgeR -log10 p-value", ylim = c(0,10))
+abline(h = -log10(0.05), col = "red")
+abline(v = -log10(0.05), col = "red")
+
+m = sum(Myores$converged)
+ymax = max(-log10(sort(MyoresEdgeR$PValue[Myores$converged])))
+plot(-log10((1:m)/m), -log10(sort(Myores$pvalue[Myores$converged])), pch = 20, xlab = "Unif", ylab = "-log10 p-value", ylim = c(0,20), type = "l")
+abline(0,1, col = "grey")
+lines(-log10((1:m)/m),-log10(sort(MyoresEdgeR$PValue[Myores$converged])), col = "blue")
+	legend("topleft",legend =  c("PQLseq","edgeR"), col = c("black","blue"),pch = 20)
+#ADD A 95% SHADE
+```
+
+Q-Q plot for real data
+```{r}
+methods = c("",".edgeRh",".edgeRAgg",".lineH",".limma",".MAST", ".DESeq2")
+methodslab = c("PQLseq","edgeRHier","edgeRAgg","linearHier","limma","MAST","DESeq2")
+methodscol = c("black","blue","cyan","magenta","red","pink","green")
+pcols = c("pvalue","PValue","PValue","pvalue","P.Value", "P.Value", "pvalue")
+pvarray = array(0, c(n,length(methods),5))
+	ymax = max(-log10(pvarray[,1:length(methods),1]))
+	
+	plot(-log10((1:1000)/1000), -log10(sort(pvarray[,1,1])), ylim = c(0,ymax), pch = 20,
+		 xlab = "-log10 Uniform",ylab = "-log10 p-value", main = "Type 1 error plot", type = "l")
+	for (i in 2:length(methods)) {
+		lines(-log10((1:1000)/1000), -log10(sort(pvarray[,i,1])), col = methodscol[i], pch = 20)
+	}
+
+	abline(0,1, col = "grey")
+	legend("topleft",legend =  methodslab, col = methodscol,pch = 20)
+
+```
+
+
+
+
+
+
+
